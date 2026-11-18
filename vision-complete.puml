@@ -1,0 +1,537 @@
+@startuml
+
+title Clients et artisans - architecture hexagonale par module
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam packageStyle rectangle
+hide empty members
+
+note as Conventions
+Toutes les entites ont : id (Long), creeLe, modifieLe (Instant UTC)
+Montants en centimes (Long)
+Les liens entre modules sont des ids dans le code
+(ex : Demande.clientId), pas des objets.
+Dependances : api -> application -> domain <- infrastructure
+end note
+
+' ==========================================
+' SHARED
+' ==========================================
+package "shared" {
+    class PageRequete {
+        - numero : int
+        - taille : int
+    }
+    class PageResultat<T> {
+        - elements : List<T>
+        - total : long
+    }
+    class RegleMetierException
+}
+
+' ==========================================
+' USER (MVP)
+' ==========================================
+package "user (MVP)" {
+    package "user.domain" {
+        class Utilisateur {
+            - email : String <<unique>>
+            - motDePasseHash : String
+            - nom : String
+            - prenom : String
+            - telephone : String
+            - role : Role
+            - statut : StatutUtilisateur
+        }
+        class Adresse {
+            - rue : String
+            - codePostal : String
+            - ville : String
+            - pays : String
+            - latitude : Double
+            - longitude : Double
+            - parDefaut : boolean
+        }
+        enum Role {
+            CLIENT
+            ARTISAN
+            ADMIN
+        }
+        enum StatutUtilisateur {
+            ACTIF
+            SUSPENDU
+            DESACTIVE
+        }
+        interface UtilisateurRepository {
+            + trouverParId(id : Long) : Optional<Utilisateur>
+            + trouverParEmail(email : String) : Optional<Utilisateur>
+            + sauvegarder(utilisateur : Utilisateur) : Utilisateur
+        }
+        interface AdresseRepository {
+            + trouverParUtilisateur(utilisateurId : Long) : List<Adresse>
+            + sauvegarder(adresse : Adresse) : Adresse
+            + supprimer(id : Long) : void
+        }
+        interface GeocodingService {
+            + trouverCoordonnees(adresse : Adresse) : Coordonnees
+        }
+        Utilisateur "1" -- "0..*" Adresse : possede
+    }
+    package "user.application" {
+        class UtilisateurService
+        class AdresseService
+    }
+    UtilisateurService --> UtilisateurRepository
+    AdresseService --> AdresseRepository
+    AdresseService --> GeocodingService
+}
+
+' ==========================================
+' CATALOG (MVP)
+' ==========================================
+package "catalog (MVP)" {
+    package "catalog.domain" {
+        class CategorieMetier {
+            - nom : String <<unique>>
+            - description : String
+        }
+        class Specialite {
+            - nom : String <<unique>>
+            - description : String
+        }
+        class ProfilArtisan {
+            - numeroSiret : String <<unique>>
+            - description : String
+            - disponible : boolean
+            - statutVerification : StatutVerification
+            - noteMoyenne : Double
+            - nombreAvis : int
+        }
+        class ArtisanSpecialite {
+            - tarifHoraireIndicatifCentimes : Long
+            - anneesExperience : int
+        }
+        enum StatutVerification {
+            EN_ATTENTE
+            VERIFIE
+            REFUSE
+        }
+        interface CategorieMetierRepository {
+            + trouverTous() : List<CategorieMetier>
+            + sauvegarder(categorie : CategorieMetier) : CategorieMetier
+        }
+        interface SpecialiteRepository {
+            + trouverParCategorie(categorieId : Long) : List<Specialite>
+            + sauvegarder(specialite : Specialite) : Specialite
+        }
+        interface ProfilArtisanRepository {
+            + trouverParId(id : Long) : Optional<ProfilArtisan>
+            + trouverParUtilisateur(utilisateurId : Long) : Optional<ProfilArtisan>
+            + rechercher(specialiteId : Long, ville : String, page : PageRequete) : PageResultat<ProfilArtisan>
+            + sauvegarder(profil : ProfilArtisan) : ProfilArtisan
+        }
+        CategorieMetier "1" -- "0..*" Specialite : regroupe
+        ProfilArtisan "1" -- "0..*" ArtisanSpecialite
+        Specialite "1" -- "0..*" ArtisanSpecialite
+    }
+    package "catalog.application" {
+        class CatalogueService
+        class ProfilArtisanService
+    }
+    CatalogueService --> CategorieMetierRepository
+    CatalogueService --> SpecialiteRepository
+    ProfilArtisanService --> ProfilArtisanRepository
+}
+
+' ==========================================
+' REQUEST (MVP)
+' ==========================================
+package "request (MVP)" {
+    package "request.domain" {
+        class Demande {
+            - titre : String
+            - description : String
+            - dateInterventionSouhaitee : Instant
+            - budgetMinCentimes : Long
+            - budgetMaxCentimes : Long
+            - urgence : NiveauUrgence
+            - statut : StatutDemande
+            + publier() : void
+            + annuler() : void
+            + peutRecevoirOffre() : boolean
+        }
+        class PieceJointe {
+            - nomFichier : String
+            - cleStockage : String
+            - typeMime : String
+            - tailleOctets : Long
+        }
+        class Offre {
+            - prixProposeCentimes : Long
+            - description : String
+            - dureeEstimeeHeures : Double
+            - dateExpiration : Instant
+            - statut : StatutOffre
+            + accepter() : void
+            + refuser() : void
+            + retirer() : void
+        }
+        enum NiveauUrgence {
+            FAIBLE
+            NORMALE
+            URGENTE
+        }
+        enum StatutDemande {
+            BROUILLON
+            PUBLIEE
+            ATTRIBUEE
+            TERMINEE
+            ANNULEE
+        }
+        enum StatutOffre {
+            EN_ATTENTE
+            ACCEPTEE
+            REFUSEE
+            RETIREE
+            EXPIREE
+        }
+        interface DemandeRepository {
+            + trouverParId(id : Long) : Optional<Demande>
+            + trouverPubliees(specialiteIds : List<Long>, page : PageRequete) : PageResultat<Demande>
+            + trouverParClient(clientId : Long, page : PageRequete) : PageResultat<Demande>
+            + sauvegarder(demande : Demande) : Demande
+        }
+        interface OffreRepository {
+            + trouverParId(id : Long) : Optional<Offre>
+            + trouverParDemande(demandeId : Long) : List<Offre>
+            + sauvegarder(offre : Offre) : Offre
+        }
+        interface PieceJointeRepository {
+            + trouverParDemande(demandeId : Long) : List<PieceJointe>
+            + sauvegarder(piece : PieceJointe) : PieceJointe
+        }
+        interface FileStorage {
+            + sauvegarder(cle : String, contenu : InputStream, typeMime : String) : void
+            + lire(cle : String) : InputStream
+            + supprimer(cle : String) : void
+        }
+        Demande "1" *-- "0..*" PieceJointe : contient
+        Demande "1" *-- "0..*" Offre : recoit
+    }
+    package "request.application" {
+        class DemandeService
+        class OffreService
+        class PieceJointeService
+    }
+    DemandeService --> DemandeRepository
+    OffreService --> OffreRepository
+    OffreService --> DemandeRepository
+    PieceJointeService --> PieceJointeRepository
+    PieceJointeService --> FileStorage
+}
+
+note right of Offre
+- une seule offre par artisan et par demande (unique demande + artisan)
+- une seule offre ACCEPTEE par demande
+- accepter() refuse si expiree ou pas EN_ATTENTE
+- a l'acceptation, les autres passent a REFUSEE (OffreService, 1 transaction)
+end note
+
+' ==========================================
+' MISSION (MVP)
+' ==========================================
+package "mission (MVP)" {
+    package "mission.domain" {
+        class Mission {
+            - datePlanifiee : Instant
+            - dateDebut : Instant
+            - dateFin : Instant
+            - prixFinalCentimes : Long
+            - statut : StatutMission
+            + planifier(date : Instant) : void
+            + demarrer() : void
+            + terminer() : void
+            + annuler() : void
+            + signalerLitige() : void
+        }
+        enum StatutMission {
+            PLANIFIEE
+            EN_COURS
+            TERMINEE
+            ANNULEE
+            LITIGE
+        }
+        interface MissionRepository {
+            + trouverParId(id : Long) : Optional<Mission>
+            + trouverParOffre(offreId : Long) : Optional<Mission>
+            + trouverParUtilisateur(utilisateurId : Long, page : PageRequete) : PageResultat<Mission>
+            + sauvegarder(mission : Mission) : Mission
+        }
+    }
+    package "mission.application" {
+        class MissionService
+    }
+    MissionService --> MissionRepository
+}
+
+note right of Mission
+Client et artisan se deduisent de l'offre.
+PLANIFIEE -> EN_COURS -> TERMINEE
+PLANIFIEE ou EN_COURS -> ANNULEE
+EN_COURS ou TERMINEE -> LITIGE (apres module dispute)
+end note
+
+' ==========================================
+' PAYMENT (apres MVP)
+' ==========================================
+package "payment (apres MVP)" {
+    package "payment.domain" {
+        class Paiement {
+            - montantCentimes : Long
+            - commissionCentimes : Long
+            - devise : String
+            - methode : MethodePaiement
+            - statut : StatutPaiement
+            - referenceExterne : String
+            - payeLe : Instant
+        }
+        enum MethodePaiement {
+            CARTE_BANCAIRE
+            PORTEFEUILLE_ELECTRONIQUE
+        }
+        enum StatutPaiement {
+            EN_ATTENTE
+            AUTORISE
+            PAYE
+            ECHOUE
+            REMBOURSE
+            PARTIELLEMENT_REMBOURSE
+        }
+        interface PaiementRepository {
+            + trouverParMission(missionId : Long) : List<Paiement>
+            + sauvegarder(paiement : Paiement) : Paiement
+        }
+        interface PaymentGateway {
+            + creerPaiement(montantCentimes : Long, devise : String, reference : String) : ResultatPaiement
+            + rembourser(referenceExterne : String, montantCentimes : Long) : void
+        }
+    }
+    package "payment.application" {
+        class PaiementService
+    }
+    PaiementService --> PaiementRepository
+    PaiementService --> PaymentGateway
+}
+
+note right of Paiement
+Aucune donnee de carte stockee.
+Taux de commission dans la configuration,
+seul le montant calcule est garde ici.
+end note
+
+' ==========================================
+' REVIEW (apres MVP)
+' ==========================================
+package "review (apres MVP)" {
+    package "review.domain" {
+        class Avis {
+            - note : int
+            - commentaire : String
+            - reponseArtisan : String
+        }
+        interface AvisRepository {
+            + trouverParMission(missionId : Long) : Optional<Avis>
+            + trouverParArtisan(artisanId : Long, page : PageRequete) : PageResultat<Avis>
+            + sauvegarder(avis : Avis) : Avis
+        }
+    }
+    package "review.application" {
+        class AvisService
+    }
+    AvisService --> AvisRepository
+}
+
+note right of Avis
+- publie seulement si la mission est TERMINEE
+- note entre 1 et 5
+- a la publication, AvisService met a jour noteMoyenne
+  et nombreAvis via ProfilArtisanService
+end note
+
+' ==========================================
+' MESSAGING (apres MVP)
+' ==========================================
+package "messaging (apres MVP)" {
+    package "messaging.domain" {
+        class Conversation {
+            - statut : StatutConversation
+        }
+        class Message {
+            - contenu : String
+            - lu : boolean
+        }
+        enum StatutConversation {
+            OUVERTE
+            FERMEE
+        }
+        interface ConversationRepository {
+            + trouverParDemandeEtArtisan(demandeId : Long, artisanId : Long) : Optional<Conversation>
+            + trouverParUtilisateur(utilisateurId : Long, page : PageRequete) : PageResultat<Conversation>
+            + sauvegarder(conversation : Conversation) : Conversation
+        }
+        interface MessageRepository {
+            + trouverParConversation(conversationId : Long, page : PageRequete) : PageResultat<Message>
+            + sauvegarder(message : Message) : Message
+        }
+        Conversation "1" *-- "0..*" Message : contient
+    }
+    package "messaging.application" {
+        class MessagerieService
+    }
+    MessagerieService --> ConversationRepository
+    MessagerieService --> MessageRepository
+}
+
+note right of Conversation
+Une conversation par couple (demande, artisan), unique.
+end note
+
+' ==========================================
+' NOTIFICATION (apres MVP)
+' ==========================================
+package "notification (apres MVP)" {
+    package "notification.domain" {
+        class Notification {
+            - titre : String
+            - contenu : String
+            - lue : boolean
+            - type : TypeNotification
+        }
+        enum TypeNotification {
+            NOUVELLE_OFFRE
+            OFFRE_ACCEPTEE
+            MISSION_PLANIFIEE
+            MISSION_TERMINEE
+            PAIEMENT_CONFIRME
+            NOUVEAU_MESSAGE
+            LITIGE_OUVERT
+        }
+        interface NotificationRepository {
+            + trouverParUtilisateur(utilisateurId : Long, page : PageRequete) : PageResultat<Notification>
+            + sauvegarder(notification : Notification) : Notification
+        }
+        interface NotificationSender {
+            + envoyer(destinataireId : Long, titre : String, contenu : String) : void
+        }
+    }
+    package "notification.application" {
+        class NotificationService
+    }
+    NotificationService --> NotificationRepository
+    NotificationService --> NotificationSender
+}
+
+' ==========================================
+' DISPUTE (apres MVP)
+' ==========================================
+package "dispute (apres MVP)" {
+    package "dispute.domain" {
+        class Litige {
+            - motif : String
+            - description : String
+            - statut : StatutLitige
+            - decision : String
+            - resoluLe : Instant
+        }
+        enum StatutLitige {
+            OUVERT
+            EN_COURS
+            RESOLU
+            REJETE
+        }
+        interface LitigeRepository {
+            + trouverParId(id : Long) : Optional<Litige>
+            + trouverParMission(missionId : Long) : List<Litige>
+            + sauvegarder(litige : Litige) : Litige
+        }
+    }
+    package "dispute.application" {
+        class LitigeService
+    }
+    LitigeService --> LitigeRepository
+}
+
+note right of Litige
+Les preuves sont des PieceJointe : une piece jointe
+appartient soit a une Demande, soit a un Litige.
+end note
+
+' ==========================================
+' LIENS LOGIQUES ENTRE MODULES (par id dans le code)
+' ==========================================
+Utilisateur "1" -- "0..1" ProfilArtisan : si role ARTISAN
+Utilisateur "1" -- "0..*" Demande : cree (client)
+Specialite "1" -- "0..*" Demande : concerne
+Adresse "1" -- "0..*" Demande : lieu d'intervention
+ProfilArtisan "1" -- "0..*" Offre : propose
+Offre "1" -- "0..1" Mission : genere
+Mission "1" -- "0..*" Paiement : paiements
+Mission "1" -- "0..1" Avis : concerne
+Demande "1" -- "0..*" Conversation : une par artisan
+ProfilArtisan "1" -- "0..*" Conversation : participe
+Utilisateur "1" --> "0..*" Message : expediteur
+Utilisateur "1" -- "0..*" Notification : recoit
+Mission "1" -- "0..*" Litige : peut generer
+Utilisateur "1" -- "0..*" Litige : ouvert par
+Litige "1" *-- "0..*" PieceJointe : preuves
+
+' ==========================================
+' INFRASTRUCTURE : implementations des interfaces
+' ==========================================
+package "infrastructure" {
+    class StripePaymentGateway
+    class LocalFileStorage
+    class S3FileStorage
+    class EmailNotificationSender
+    class PushNotificationSender
+    class NominatimGeocodingService
+}
+
+StripePaymentGateway ..|> PaymentGateway
+LocalFileStorage ..|> FileStorage
+S3FileStorage ..|> FileStorage
+EmailNotificationSender ..|> NotificationSender
+PushNotificationSender ..|> NotificationSender
+NominatimGeocodingService ..|> GeocodingService
+
+' ==========================================
+' MOTIF BASE DE DONNEES (exemple : Demande, identique pour chaque entite)
+' ==========================================
+package "request.infrastructure (exemple)" {
+    class DemandeJpaEntity
+    interface DemandeJpaRepository
+    class DemandeMapper
+    class DemandeRepositoryJpa
+}
+
+package "request.api (exemple)" {
+    class DemandeController
+    class DemandeResponse
+}
+
+DemandeRepositoryJpa ..|> DemandeRepository
+DemandeRepositoryJpa --> DemandeJpaRepository
+DemandeRepositoryJpa --> DemandeMapper
+DemandeMapper ..> Demande
+DemandeMapper ..> DemandeJpaEntity
+DemandeController --> DemandeService
+DemandeController ..> DemandeResponse
+
+note bottom of DemandeRepositoryJpa
+Meme motif pour chaque entite : une classe JPA, une interface
+Spring Data, un mapper et une implementation du Repository.
+Changer de base = ecrire une autre implementation du Repository.
+end note
+
+@enduml

@@ -1,0 +1,150 @@
+# PLAN.md : stratégie et feuille de route
+
+Ce fichier dit **quoi construire et dans quel ordre**.
+Les règles de code sont dans `AGENTS.md`. Le modèle de données est dans
+`docs/mvp-domaine.puml`. En cas de doute, ces deux fichiers font foi.
+
+## Objectif
+
+Plateforme de mise en relation entre clients et artisans.
+Un client publie une demande, des artisans proposent des offres,
+le client en accepte une, une mission est créée.
+
+Périmètre du MVP : modules `user`, `catalog`, `request`, `mission`.
+Tout le reste est hors périmètre tant que le MVP n'est pas validé.
+
+## Règles de fonctionnement
+
+1. Une phase à la fois. Ne commence jamais la phase suivante sans que
+   je l'aie validée.
+2. Une tâche à la fois, dans l'ordre de la liste.
+3. Quand une tâche est terminée, coche-la ici (`[x]`) dans le même commit.
+4. Si une tâche est floue ou demande un choix technique, pose la question
+   avant de coder.
+5. Ne modifie pas le modèle de données sans me le proposer d'abord.
+
+## Cycle à appliquer pour chaque tâche
+
+1. **Comprendre** : relis la tâche, le diagramme et le code existant concerné.
+2. **Annoncer** : explique en 3 à 5 lignes ce que tu vas faire.
+3. **Écrire les tests** : décris le comportement attendu en tests d'abord.
+4. **Coder** : le minimum pour faire passer les tests.
+5. **Vérifier** : lance `mvn verify`. Tout doit être vert.
+6. **Résumer** : en langage simple, ce qui a changé, les fichiers touchés,
+   ce que je dois vérifier.
+7. **Commit** : un commit par tâche, message clair en français.
+
+## Définition de "terminé"
+
+Une tâche est terminée seulement si :
+
+- [ ] `mvn verify` passe sans erreur ni avertissement nouveau
+- [ ] le code est formaté automatiquement
+- [ ] les services ont des tests unitaires, les endpoints un test d'intégration
+- [ ] les entrées utilisateur sont validées
+- [ ] aucune dépendance n'a été ajoutée sans mon accord
+- [ ] le résumé est écrit et compréhensible sans lire le code
+
+## Phase 0 : fondations
+
+But : un projet vide qui démarre, se teste et se déploie.
+- [ ] Projet parent Maven + modules vides : domain, application, persistence,
+      web, app. Les dépendances entre modules sont celles d'AGENT.md.
+      `mvn clean verify` passe. `domain` n'a aucune dépendance.
+- [ ] Projet Spring Boot (Java 21, Maven), structure par modules métier
+- [ ] `docker-compose.yml` avec PostgreSQL pour le développement
+- [ ] Flyway configuré, première migration vide
+- [ ] Configuration par variables d'environnement (aucun secret dans le code)
+- [ ] Formatage automatique et `mvn verify` qui l'applique
+- [ ] Un test d'intégration avec Testcontainers qui démarre l'application
+- [ ] Endpoint de santé (`/actuator/health`)
+- [ ] OpenAPI (Swagger UI) accessible en local
+- [ ] Gestion d'erreurs globale : format JSON unique, jamais d'erreur technique visible
+- [ ] Logs structurés
+- [ ] Intégration continue (GitHub Actions) qui lance `mvn verify`
+- [ ] `README.md` : comment lancer le projet en 3 commandes
+- [ ] Créer un module exemple minimal avec les 4 dossiers (domain, application,
+      api, infrastructure) pour valider la structure avant les vrais modules
+- [ ] Test d'architecture automatique (proposer la librairie ArchUnit, open source) qui
+      fait échouer `mvn verify` si :
+      - `domain` importe Spring, JPA ou Jackson
+      - `api` accède à `infrastructure`
+      - un module accède au `domain` ou à l'`infrastructure` d'un autre module
+      - un controller utilise directement un Repository
+**Validation attendue :** je clone le projet, je lance 3 commandes, ça marche.
+
+## Phase 1 : module `user`
+
+- [ ] Migration : tables `utilisateur` et `adresse`
+- [ ] Inscription (email unique, mot de passe haché, rôle CLIENT ou ARTISAN)
+- [ ] Connexion avec jeton (proposer l'approche avant de coder, application stateless)
+- [ ] Un utilisateur ne peut jamais s'attribuer le rôle ADMIN lui-même
+- [ ] Consulter et modifier son profil
+- [ ] Gérer ses adresses (une seule adresse par défaut)
+- [ ] Désactiver son compte
+- [ ] Contrôle d'accès : chaque endpoint indique quel rôle y a droit
+- [ ] Tests : cas normaux et cas d'erreur (email déjà pris, mot de passe faible, accès refusé)
+
+## Phase 2 : module `catalog`
+
+- [ ] Migration : catégories, spécialités, profil artisan, spécialités de l'artisan
+- [ ] Lister catégories et spécialités (lecture publique, paginée)
+- [ ] Créer et modifier catégories et spécialités (ADMIN uniquement)
+- [ ] Création du profil artisan (SIRET unique, statut EN_ATTENTE)
+- [ ] L'artisan gère ses spécialités, tarif indicatif et années d'expérience
+- [ ] Vérification d'un artisan par un ADMIN (VERIFIE ou REFUSE)
+- [ ] Recherche d'artisans par spécialité et ville (paginée, avec index)
+- [ ] Données de départ : quelques catégories et spécialités via migration
+
+## Phase 3 : module `request`
+
+- [ ] Migration : demandes, pièces jointes, offres (contraintes d'unicité incluses)
+- [ ] Client : créer une demande en BROUILLON, la modifier, la publier, l'annuler
+- [ ] Interface `FileStorage` avec une implémentation disque local (premier cas
+      réel où une interface est justifiée), puis envoi de pièces jointes
+      (types et taille limités)
+- [ ] Artisan : lister les demandes publiées correspondant à ses spécialités (paginé)
+- [ ] Artisan vérifié : proposer, modifier, retirer une offre
+- [ ] Une seule offre par artisan et par demande
+- [ ] Client : consulter les offres reçues
+- [ ] Client : accepter une offre (les autres passent à REFUSEE, la demande
+      passe à ATTRIBUEE, le tout dans une seule transaction)
+- [ ] Expiration des offres (tâche planifiée)
+- [ ] Tests des règles : offre expirée, double acceptation, accès à la demande d'un autre client
+
+## Phase 4 : module `mission`
+
+- [ ] Migration : table mission
+- [ ] Création automatique de la mission à l'acceptation d'une offre
+- [ ] Planifier, démarrer, terminer, annuler avec les transitions autorisées
+      (voir le diagramme), toute autre transition est refusée
+- [ ] Qui peut faire quoi : l'artisan démarre et termine, le client et l'artisan
+      peuvent annuler selon l'état
+- [ ] La demande passe à TERMINEE quand la mission est terminée
+- [ ] Consulter ses missions (client et artisan, paginé)
+- [ ] Tests des transitions interdites
+
+## Phase 5 : consolidation du MVP
+
+- [ ] Revue de sécurité : accès, validation, secrets, messages d'erreur
+- [ ] Revue des index et des requêtes lentes avec un jeu de données volumineux
+- [ ] Test de bout en bout : inscription -> demande -> offre -> acceptation -> mission terminée
+- [ ] Nettoyage : code mort, doublons, dépendances inutiles
+- [ ] Documentation à jour : README, OpenAPI, ce plan
+- [ ] Déploiement de test (Docker) sur un petit serveur
+
+**Validation attendue :** le parcours complet fonctionne et je peux le démontrer.
+
+## Après le MVP (ne pas commencer sans ordre de ma part)
+
+Dans cet ordre probable : `review`, `messaging`, `notification`, `payment`
+(avec interface `PaymentGateway`), `dispute`, conformité RGPD (export et
+suppression des données).
+
+## Journal des décisions
+
+Ajoute ici chaque décision technique importante (date, choix, raison).
+
+| Date | Décision | Raison |
+|---|---|---|
+| | | |

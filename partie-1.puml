@@ -1,0 +1,319 @@
+@startuml
+
+title MVP - Clients et artisans (user, catalog, request, mission)
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam packageStyle rectangle
+hide empty members
+
+note as Conventions
+Toutes les entites ont : id (Long), creeLe, modifieLe (Instant UTC)
+Montants en centimes (Long)
+Les liens entre modules sont des ids dans le code
+(ex : Demande.clientId), pas des objets.
+Dependances : api -> application -> domain <- infrastructure
+end note
+
+' ========== SHARED ==========
+package "shared" {
+    class PageRequete {
+        - numero : int
+        - taille : int
+    }
+    class PageResultat<T> {
+        - elements : List<T>
+        - total : long
+    }
+    class RegleMetierException
+}
+
+' ========== USER ==========
+package "user" {
+    package "user.domain" {
+        class Utilisateur {
+            - email : String <<unique>>
+            - motDePasseHash : String
+            - nom : String
+            - prenom : String
+            - telephone : String
+            - role : Role
+            - statut : StatutUtilisateur
+        }
+        class Adresse {
+            - rue : String
+            - codePostal : String
+            - ville : String
+            - pays : String
+            - parDefaut : boolean
+        }
+        enum Role {
+            CLIENT
+            ARTISAN
+            ADMIN
+        }
+        enum StatutUtilisateur {
+            ACTIF
+            SUSPENDU
+            DESACTIVE
+        }
+        interface UtilisateurRepository {
+            + trouverParId(id : Long) : Optional<Utilisateur>
+            + trouverParEmail(email : String) : Optional<Utilisateur>
+            + sauvegarder(utilisateur : Utilisateur) : Utilisateur
+        }
+        interface AdresseRepository {
+            + trouverParUtilisateur(utilisateurId : Long) : List<Adresse>
+            + sauvegarder(adresse : Adresse) : Adresse
+            + supprimer(id : Long) : void
+        }
+        Utilisateur "1" -- "0..*" Adresse : possede
+    }
+    package "user.application" {
+        class UtilisateurService
+        class AdresseService
+    }
+    UtilisateurService --> UtilisateurRepository
+    AdresseService --> AdresseRepository
+}
+
+' ========== CATALOG ==========
+package "catalog" {
+    package "catalog.domain" {
+        class CategorieMetier {
+            - nom : String <<unique>>
+            - description : String
+        }
+        class Specialite {
+            - nom : String <<unique>>
+            - description : String
+        }
+        class ProfilArtisan {
+            - numeroSiret : String <<unique>>
+            - description : String
+            - disponible : boolean
+            - statutVerification : StatutVerification
+            - noteMoyenne : Double
+            - nombreAvis : int
+        }
+        class ArtisanSpecialite {
+            - tarifHoraireIndicatifCentimes : Long
+            - anneesExperience : int
+        }
+        enum StatutVerification {
+            EN_ATTENTE
+            VERIFIE
+            REFUSE
+        }
+        interface CategorieMetierRepository {
+            + trouverTous() : List<CategorieMetier>
+            + sauvegarder(categorie : CategorieMetier) : CategorieMetier
+        }
+        interface SpecialiteRepository {
+            + trouverParCategorie(categorieId : Long) : List<Specialite>
+            + sauvegarder(specialite : Specialite) : Specialite
+        }
+        interface ProfilArtisanRepository {
+            + trouverParId(id : Long) : Optional<ProfilArtisan>
+            + trouverParUtilisateur(utilisateurId : Long) : Optional<ProfilArtisan>
+            + rechercher(specialiteId : Long, ville : String, page : PageRequete) : PageResultat<ProfilArtisan>
+            + sauvegarder(profil : ProfilArtisan) : ProfilArtisan
+        }
+        CategorieMetier "1" -- "0..*" Specialite : regroupe
+        ProfilArtisan "1" -- "0..*" ArtisanSpecialite
+        Specialite "1" -- "0..*" ArtisanSpecialite
+    }
+    package "catalog.application" {
+        class CatalogueService
+        class ProfilArtisanService
+    }
+    CatalogueService --> CategorieMetierRepository
+    CatalogueService --> SpecialiteRepository
+    ProfilArtisanService --> ProfilArtisanRepository
+}
+
+note right of ProfilArtisan
+noteMoyenne et nombreAvis sont stockes volontairement
+(performance). Mis a jour plus tard par le module review.
+end note
+
+' ========== REQUEST ==========
+package "request" {
+    package "request.domain" {
+        class Demande {
+            - titre : String
+            - description : String
+            - dateInterventionSouhaitee : Instant
+            - budgetMinCentimes : Long
+            - budgetMaxCentimes : Long
+            - urgence : NiveauUrgence
+            - statut : StatutDemande
+            + publier() : void
+            + annuler() : void
+            + peutRecevoirOffre() : boolean
+        }
+        class PieceJointe {
+            - nomFichier : String
+            - cleStockage : String
+            - typeMime : String
+            - tailleOctets : Long
+        }
+        class Offre {
+            - prixProposeCentimes : Long
+            - description : String
+            - dureeEstimeeHeures : Double
+            - dateExpiration : Instant
+            - statut : StatutOffre
+            + accepter() : void
+            + refuser() : void
+            + retirer() : void
+        }
+        enum NiveauUrgence {
+            FAIBLE
+            NORMALE
+            URGENTE
+        }
+        enum StatutDemande {
+            BROUILLON
+            PUBLIEE
+            ATTRIBUEE
+            TERMINEE
+            ANNULEE
+        }
+        enum StatutOffre {
+            EN_ATTENTE
+            ACCEPTEE
+            REFUSEE
+            RETIREE
+            EXPIREE
+        }
+        interface DemandeRepository {
+            + trouverParId(id : Long) : Optional<Demande>
+            + trouverPubliees(specialiteIds : List<Long>, page : PageRequete) : PageResultat<Demande>
+            + trouverParClient(clientId : Long, page : PageRequete) : PageResultat<Demande>
+            + sauvegarder(demande : Demande) : Demande
+        }
+        interface OffreRepository {
+            + trouverParId(id : Long) : Optional<Offre>
+            + trouverParDemande(demandeId : Long) : List<Offre>
+            + sauvegarder(offre : Offre) : Offre
+        }
+        interface PieceJointeRepository {
+            + trouverParDemande(demandeId : Long) : List<PieceJointe>
+            + sauvegarder(piece : PieceJointe) : PieceJointe
+        }
+        interface FileStorage {
+            + sauvegarder(cle : String, contenu : InputStream, typeMime : String) : void
+            + lire(cle : String) : InputStream
+            + supprimer(cle : String) : void
+        }
+        Demande "1" *-- "0..*" PieceJointe : contient
+        Demande "1" *-- "0..*" Offre : recoit
+    }
+    package "request.application" {
+        class DemandeService
+        class OffreService
+        class PieceJointeService
+    }
+    DemandeService --> DemandeRepository
+    OffreService --> OffreRepository
+    OffreService --> DemandeRepository
+    PieceJointeService --> PieceJointeRepository
+    PieceJointeService --> FileStorage
+}
+
+note right of Offre
+- une seule offre par artisan et par demande (unique demande + artisan)
+- une seule offre ACCEPTEE par demande
+- accepter() refuse si expiree ou pas EN_ATTENTE
+- a l'acceptation, les autres passent a REFUSEE
+  (OffreService, une seule transaction)
+end note
+
+note right of StatutDemande
+ATTRIBUEE = une offre a ete acceptee, la mission existe.
+L'avancement du travail est suivi dans Mission.
+end note
+
+' ========== MISSION ==========
+package "mission" {
+    package "mission.domain" {
+        class Mission {
+            - datePlanifiee : Instant
+            - dateDebut : Instant
+            - dateFin : Instant
+            - prixFinalCentimes : Long
+            - statut : StatutMission
+            + planifier(date : Instant) : void
+            + demarrer() : void
+            + terminer() : void
+            + annuler() : void
+        }
+        enum StatutMission {
+            PLANIFIEE
+            EN_COURS
+            TERMINEE
+            ANNULEE
+        }
+        interface MissionRepository {
+            + trouverParId(id : Long) : Optional<Mission>
+            + trouverParOffre(offreId : Long) : Optional<Mission>
+            + trouverParUtilisateur(utilisateurId : Long, page : PageRequete) : PageResultat<Mission>
+            + sauvegarder(mission : Mission) : Mission
+        }
+    }
+    package "mission.application" {
+        class MissionService
+    }
+    MissionService --> MissionRepository
+}
+
+note right of Mission
+Client et artisan se deduisent de l'offre.
+PLANIFIEE -> EN_COURS -> TERMINEE
+PLANIFIEE ou EN_COURS -> ANNULEE
+Toute autre transition est refusee.
+end note
+
+' ========== LIENS LOGIQUES ENTRE MODULES (par id) ==========
+Utilisateur "1" -- "0..1" ProfilArtisan : si role ARTISAN
+Utilisateur "1" -- "0..*" Demande : cree (client)
+Specialite "1" -- "0..*" Demande : concerne
+Adresse "1" -- "0..*" Demande : lieu d'intervention
+ProfilArtisan "1" -- "0..*" Offre : propose
+Offre "1" -- "0..1" Mission : genere
+
+' ========== INFRASTRUCTURE ==========
+package "infrastructure" {
+    class LocalFileStorage
+}
+LocalFileStorage ..|> FileStorage
+
+' ========== MOTIF BASE DE DONNEES (identique pour chaque entite) ==========
+package "request.infrastructure (exemple)" {
+    class DemandeJpaEntity
+    interface DemandeJpaRepository
+    class DemandeMapper
+    class DemandeRepositoryJpa
+}
+
+package "request.api (exemple)" {
+    class DemandeController
+    class DemandeResponse
+}
+
+DemandeRepositoryJpa ..|> DemandeRepository
+DemandeRepositoryJpa --> DemandeJpaRepository
+DemandeRepositoryJpa --> DemandeMapper
+DemandeMapper ..> Demande
+DemandeMapper ..> DemandeJpaEntity
+DemandeController --> DemandeService
+DemandeController ..> DemandeResponse
+
+note bottom of DemandeRepositoryJpa
+Meme motif pour chaque entite : une classe JPA, une interface
+Spring Data, un mapper et une implementation du Repository.
+Changer de base = ecrire une autre implementation du Repository.
+end note
+
+@enduml
