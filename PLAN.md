@@ -60,7 +60,7 @@ But : un projet vide qui démarre, se teste et se déploie.
 - [x] Un test d'intégration avec Testcontainers qui démarre l'application
 - [x] Endpoint de santé (`/actuator/health`)
 - [x] OpenAPI (Swagger UI) accessible en local
-- [ ] Gestion d'erreurs globale : format JSON unique, jamais d'erreur technique visible
+- [x] Gestion d'erreurs globale : format JSON unique, jamais d'erreur technique visible
 - [ ] Logs structurés
 - [ ] Intégration continue (GitHub Actions) qui lance `mvn verify`
 - [ ] `README.md` : comment lancer le projet en 3 commandes
@@ -154,3 +154,4 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 | 2026-11-18 | Testcontainers PostgreSQL 17 avec @ServiceConnection | Demarrage conteneur PostgreSQL ephemere pour les tests d'integration sans configuration manuelle de datasource |
 | 2026-11-18 | Actuator HealthEndpoint et exposition web /actuator/health | Exposition des sondes de sante pour le monitoring et la supervision |
 | 2026-11-18 | Springdoc OpenAPI 3.2.0 dans module app | Documentation Swagger UI et OpenAPI 3 compatible Spring Boot 4.1 |
+| 2026-11-18 | GlobalExceptionHandler avec ErrorResponse unifiee | Format JSON unique d'erreur (RFC 7807 inspire), masquage des erreurs techniques |
