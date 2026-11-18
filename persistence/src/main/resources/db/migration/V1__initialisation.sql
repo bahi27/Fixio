@@ -1,0 +1,2 @@
+-- V1 : initialisation du schema
+-- Les tables metier seront ajoutees dans les migrations suivantes.

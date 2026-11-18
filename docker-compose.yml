@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: monsieurclef-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-monsieurclef}
+      POSTGRES_USER: ${DATABASE_USERNAME:-monsieurclef}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-monsieurclef}
+    ports:
+      - "${DATABASE_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
