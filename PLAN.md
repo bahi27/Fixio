@@ -62,7 +62,7 @@ But : un projet vide qui démarre, se teste et se déploie.
 - [x] OpenAPI (Swagger UI) accessible en local
 - [x] Gestion d'erreurs globale : format JSON unique, jamais d'erreur technique visible
 - [x] Logs structurés
-- [ ] Intégration continue (GitHub Actions) qui lance `mvn verify`
+- [x] Intégration continue (GitHub Actions) qui lance `mvn verify`
 - [ ] `README.md` : comment lancer le projet en 3 commandes
 - [ ] Créer un module exemple minimal avec les 4 dossiers (domain, application,
       api, infrastructure) pour valider la structure avant les vrais modules
@@ -156,3 +156,4 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 | 2026-11-18 | Springdoc OpenAPI 3.2.0 dans module app | Documentation Swagger UI et OpenAPI 3 compatible Spring Boot 4.1 |
 | 2026-11-18 | GlobalExceptionHandler avec ErrorResponse unifiee | Format JSON unique d'erreur (RFC 7807 inspire), masquage des erreurs techniques |
 | 2026-11-18 | Format de log standardise ISO-8601 et niveaux par package | Logs structures clairs avec horodatage precis et niveau debug pour bahi27 |
+| 2026-11-18 | GitHub Actions CI avec Eclipse Temurin 21 | Verification automatique du build et des tests sur push et PR |
