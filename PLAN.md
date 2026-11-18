@@ -61,7 +61,7 @@ But : un projet vide qui démarre, se teste et se déploie.
 - [x] Endpoint de santé (`/actuator/health`)
 - [x] OpenAPI (Swagger UI) accessible en local
 - [x] Gestion d'erreurs globale : format JSON unique, jamais d'erreur technique visible
-- [ ] Logs structurés
+- [x] Logs structurés
 - [ ] Intégration continue (GitHub Actions) qui lance `mvn verify`
 - [ ] `README.md` : comment lancer le projet en 3 commandes
 - [ ] Créer un module exemple minimal avec les 4 dossiers (domain, application,
@@ -155,3 +155,4 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 | 2026-11-18 | Actuator HealthEndpoint et exposition web /actuator/health | Exposition des sondes de sante pour le monitoring et la supervision |
 | 2026-11-18 | Springdoc OpenAPI 3.2.0 dans module app | Documentation Swagger UI et OpenAPI 3 compatible Spring Boot 4.1 |
 | 2026-11-18 | GlobalExceptionHandler avec ErrorResponse unifiee | Format JSON unique d'erreur (RFC 7807 inspire), masquage des erreurs techniques |
+| 2026-11-18 | Format de log standardise ISO-8601 et niveaux par package | Logs structures clairs avec horodatage precis et niveau debug pour bahi27 |
