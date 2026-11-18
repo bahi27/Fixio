@@ -48,13 +48,14 @@ Une tâche est terminée seulement si :
 ## Phase 0 : fondations
 
 But : un projet vide qui démarre, se teste et se déploie.
-- [ ] Projet parent Maven + modules vides : domain, application, persistence,
+
+- [x] Projet parent Maven + modules vides : domain, application, persistence,
       web, app. Les dépendances entre modules sont celles d'AGENT.md.
       `mvn clean verify` passe. `domain` n'a aucune dépendance.
-- [ ] Projet Spring Boot (Java 21, Maven), structure par modules métier
-- [ ] `docker-compose.yml` avec PostgreSQL pour le développement
-- [ ] Flyway configuré, première migration vide
-- [ ] Configuration par variables d'environnement (aucun secret dans le code)
+- [x] Projet Spring Boot (Java 21, Maven), structure par modules métier
+- [x] `docker-compose.yml` avec PostgreSQL pour le développement
+- [x] Flyway configuré, première migration vide
+- [x] Configuration par variables d'environnement (aucun secret dans le code)
 - [ ] Formatage automatique et `mvn verify` qui l'applique
 - [ ] Un test d'intégration avec Testcontainers qui démarre l'application
 - [ ] Endpoint de santé (`/actuator/health`)
@@ -147,4 +148,5 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 
 | Date | Décision | Raison |
 |---|---|---|
-| | | |
+| 2026-11-18 | Choix de PostgreSQL 17 dans docker-compose | Version stable et supportée avec volume persistant |
+| 2026-11-18 | Renommage du projet et group/packages en fr.bahi27 | Demande utilisateur pour supprimer toute mention de l'ancien nom |
