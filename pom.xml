@@ -11,12 +11,12 @@
         <relativePath/>
     </parent>
 
-    <groupId>fr.monsieurclef</groupId>
-    <artifactId>monsieur-clef</artifactId>
+    <groupId>fr.bahi27</groupId>
+    <artifactId>bahi27</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>monsieur-clef</name>
-    <description>Projet Monsieur Clef - Plateforme de mise en relation clients et artisans</description>
+    <name>bahi27</name>
+    <description>Plateforme de mise en relation clients et artisans</description>
 
     <properties>
         <java.version>21</java.version>
@@ -36,22 +36,22 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>fr.monsieurclef</groupId>
+                <groupId>fr.bahi27</groupId>
                 <artifactId>domain</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>fr.monsieurclef</groupId>
+                <groupId>fr.bahi27</groupId>
                 <artifactId>application</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>fr.monsieurclef</groupId>
+                <groupId>fr.bahi27</groupId>
                 <artifactId>persistence</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>fr.monsieurclef</groupId>
+                <groupId>fr.bahi27</groupId>
                 <artifactId>web</artifactId>
                 <version>${project.version}</version>
             </dependency>

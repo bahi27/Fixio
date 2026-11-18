@@ -50,7 +50,7 @@ années et pouvoir monter à plusieurs millions d'utilisateurs.
   - Un module par service externe (payment-stripe, storage...), créé quand
     on intègre le service. Il dépend de `domain` uniquement.
 - Dans chaque module, packages par domaine métier :
-  fr.monsieurclef.<couche>.<domaine> (ex : fr.monsieurclef.domain.request).
+  fr.bahi27.<couche>.<domaine> (ex : fr.bahi27.domain.request).
 - Un domaine métier n'utilise jamais les classes internes d'un autre :
   il passe par les services de `application` (vérifié par ArchUnit dans `app`).
 - Les règles métier sont dans les classes de `domain`. Les services de

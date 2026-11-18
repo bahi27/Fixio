@@ -1,4 +1,4 @@
-package fr.monsieurclef.app;
+package fr.bahi27.app;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
         + "org.springframework.boot.autoconfigure.flyway.FlywayAutoConfiguration,"
         + "org.springframework.boot.flyway.autoconfigure.FlywayAutoConfiguration"
 })
-class MonsieurClefApplicationTest {
+class Bahi27ApplicationTest {
 
     @Test
     void contextLoads() {

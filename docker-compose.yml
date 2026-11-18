@@ -1,12 +1,12 @@
 services:
   postgres:
     image: postgres:17
-    container_name: monsieurclef-db
+    container_name: bahi27-db
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${DATABASE_NAME:-monsieurclef}
-      POSTGRES_USER: ${DATABASE_USERNAME:-monsieurclef}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-monsieurclef}
+      POSTGRES_DB: ${DATABASE_NAME:-bahi27}
+      POSTGRES_USER: ${DATABASE_USERNAME:-bahi27}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-bahi27}
     ports:
       - "${DATABASE_PORT:-5432}:5432"
     volumes:

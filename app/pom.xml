@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>fr.monsieurclef</groupId>
-        <artifactId>monsieur-clef</artifactId>
+        <groupId>fr.bahi27</groupId>
+        <artifactId>bahi27</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -17,19 +17,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>fr.monsieurclef</groupId>
+            <groupId>fr.bahi27</groupId>
             <artifactId>domain</artifactId>
         </dependency>
         <dependency>
-            <groupId>fr.monsieurclef</groupId>
+            <groupId>fr.bahi27</groupId>
             <artifactId>application</artifactId>
         </dependency>
         <dependency>
-            <groupId>fr.monsieurclef</groupId>
+            <groupId>fr.bahi27</groupId>
             <artifactId>persistence</artifactId>
         </dependency>
         <dependency>
-            <groupId>fr.monsieurclef</groupId>
+            <groupId>fr.bahi27</groupId>
             <artifactId>web</artifactId>
         </dependency>
         <dependency>
