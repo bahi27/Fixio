@@ -56,7 +56,7 @@ But : un projet vide qui démarre, se teste et se déploie.
 - [x] `docker-compose.yml` avec PostgreSQL pour le développement
 - [x] Flyway configuré, première migration vide
 - [x] Configuration par variables d'environnement (aucun secret dans le code)
-- [ ] Formatage automatique et `mvn verify` qui l'applique
+- [x] Formatage automatique et `mvn verify` qui l'applique
 - [ ] Un test d'intégration avec Testcontainers qui démarre l'application
 - [ ] Endpoint de santé (`/actuator/health`)
 - [ ] OpenAPI (Swagger UI) accessible en local
@@ -150,3 +150,4 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 |---|---|---|
 | 2026-11-18 | Choix de PostgreSQL 17 dans docker-compose | Version stable et supportée avec volume persistant |
 | 2026-11-18 | Renommage du projet et group/packages en fr.bahi27 | Demande utilisateur pour supprimer toute mention de l'ancien nom |
+| 2026-11-18 | Spotless avec Google Java Format 1.28.0 | Formatage automatique applique sur mvn verify, compatible Java 25 |
