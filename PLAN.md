@@ -49,6 +49,9 @@ Une tâche est terminée seulement si :
 
 But : un projet vide qui démarre, se teste et se déploie.
 
+**État : terminé le 2026-11-19** — 15 tâches, build vert (29 tests), `./run.sh`
+validé sur un clone propre.
+
 - [x] Projet parent Maven + modules vides : domain, application, persistence,
       web, app. Les dépendances entre modules sont celles d'AGENTS.md.
       `mvn clean verify` passe. `domain` n'a aucune dépendance.
