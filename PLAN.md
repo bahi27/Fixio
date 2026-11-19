@@ -64,8 +64,6 @@ But : un projet vide qui démarre, se teste et se déploie.
 - [x] Logs structurés
 - [x] Intégration continue (GitHub Actions) qui lance `mvn verify`
 - [x] `README.md` : comment lancer le projet en 3 commandes
-- [ ] Créer un module exemple minimal avec les 4 dossiers (domain, application,
-      api, infrastructure) pour valider la structure avant les vrais modules
 - [x] Test d'architecture automatique (ArchUnit `archunit-junit5` 1.5.1, Apache 2.0) qui
       fait échouer `mvn verify` si :
       - `domain` importe Spring, JPA ou Jackson
@@ -73,8 +71,9 @@ But : un projet vide qui démarre, se teste et se déploie.
       - `application` accède à `persistence` ou `web`
       - un domaine (`fr.bahi27.domain.<domaine>`) dépend d'un autre domaine
       - un controller utilise directement un Repository
-- [ ] Seuil JaCoCo (rapport agrégé en place, seuil à décider par le porteur du projet ;
-      proposition : 80 % des lignes et 70 % des branches)
+- [x] Seuil JaCoCo : 70 % des lignes et 60 % des branches, appliqué par module de
+      production dans `mvn verify` (le goal `check` n'analyse que les classes du
+      module courant) ; rapport agrégé conservé pour la vue d'ensemble
 **Validation attendue :** je clone le projet, je lance 3 commandes, ça marche.
 
 ## Phase 1 : module `user`
@@ -164,6 +163,8 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 | 2026-11-19 | Reponses 405 et 400 (JSON illisible) ajoutees au handler global | Sans elles, une methode HTTP erronee ou un JSON casse renvoyait 500 avec un message trompeur |
 | 2026-11-19 | Format de log verifie par test (ISO-8601) et actuator limite a health,info | Prouve le format sans dependance supplementaire et evite l'exposition de configuration sensible |
 | 2026-11-19 | JaCoCo 0.8.16 avec rapport agrege dans le module app | Mesure de couverture globale ; aucun seuil impose tant que le porteur du projet ne l'a pas choisi |
+| 2026-11-19 | Seuil de couverture fixe a 70 % des lignes / 60 % des branches, verifie par module | Le goal check ne peut analyser que les classes du module courant ; chaque module de production teste donc ses propres classes |
+| 2026-11-19 | Tache "module exemple" retiree du plan | Les 5 modules existants et le test ArchUnit valident deja la structure ; un module jetable aurait ajoute du code mort |
 | 2026-11-19 | ArchUnit 1.5.1 (scope test, module app) pour verrouiller les frontieres de couches | Une violation de couche casse le build au lieu d'etre decouverte a la relecture |
 | 2026-11-19 | CI declenchee sur tout push et toute pull request (plus seulement main) | La CI couvre aussi les branches de travail comme phase-0 |
 | 2026-11-19 | `AGENT.md` renomme en `AGENTS.md` ; PLAN.md pointe vers `partie-1.puml` (le fichier `docs/mvp-domaine.puml` n'existe pas) | Reference unique et chemin reellement existant |

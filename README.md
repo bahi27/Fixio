@@ -86,6 +86,16 @@ Les frontières sont vérifiées automatiquement par un test ArchUnit
 `domain` importe Spring/JPA, si `web` touche `persistence`, si `application`
 touche les adaptateurs, ou si un domaine dépend d'un autre domaine.
 
+La couverture est mesurée par JaCoCo ; `mvn verify` échoue si un module de
+production descend sous **70 % des lignes** ou **60 % des branches**. Le
+rapport global est écrit dans `app/target/site/jacoco-aggregate/index.html`.
+
+## Git
+
+Chaque tâche validée donne lieu à un commit unique en français, préfixé d'un
+type : `feat:`, `fix:`, `build:`, `chore:`, `test:` ou `docs:`. Aucun commit
+ne doit laisser le build rouge.
+
 ## Erreurs et logs
 
 Toutes les erreurs HTTP renvoient le même format JSON (`status`, `error`,
