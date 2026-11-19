@@ -158,3 +158,4 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 | 2026-11-18 | Format de log standardise ISO-8601 et niveaux par package | Logs structures clairs avec horodatage precis et niveau debug pour bahi27 |
 | 2026-11-18 | GitHub Actions CI avec Eclipse Temurin 21 | Verification automatique du build et des tests sur push et PR |
 | 2026-11-19 | Titre et version OpenAPI lus depuis application.yml (version issue du pom.xml) | Documentation exacte sans dupliquer le numero de version |
+| 2026-11-19 | Reponses 405 et 400 (JSON illisible) ajoutees au handler global | Sans elles, une methode HTTP erronee ou un JSON casse renvoyait 500 avec un message trompeur |
