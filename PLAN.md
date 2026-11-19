@@ -2,7 +2,7 @@
 
 Ce fichier dit **quoi construire et dans quel ordre**.
 Les règles de code sont dans `AGENTS.md`. Le modèle de données est dans
-`docs/mvp-domaine.puml`. En cas de doute, ces deux fichiers font foi.
+`partie-1.puml`. En cas de doute, ces deux fichiers font foi.
 
 ## Objectif
 
@@ -50,7 +50,7 @@ Une tâche est terminée seulement si :
 But : un projet vide qui démarre, se teste et se déploie.
 
 - [x] Projet parent Maven + modules vides : domain, application, persistence,
-      web, app. Les dépendances entre modules sont celles d'AGENT.md.
+      web, app. Les dépendances entre modules sont celles d'AGENTS.md.
       `mvn clean verify` passe. `domain` n'a aucune dépendance.
 - [x] Projet Spring Boot (Java 21, Maven), structure par modules métier
 - [x] `docker-compose.yml` avec PostgreSQL pour le développement
@@ -166,3 +166,4 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 | 2026-11-19 | JaCoCo 0.8.16 avec rapport agrege dans le module app | Mesure de couverture globale ; aucun seuil impose tant que le porteur du projet ne l'a pas choisi |
 | 2026-11-19 | ArchUnit 1.5.1 (scope test, module app) pour verrouiller les frontieres de couches | Une violation de couche casse le build au lieu d'etre decouverte a la relecture |
 | 2026-11-19 | CI declenchee sur tout push et toute pull request (plus seulement main) | La CI couvre aussi les branches de travail comme phase-0 |
+| 2026-11-19 | `AGENT.md` renomme en `AGENTS.md` ; PLAN.md pointe vers `partie-1.puml` (le fichier `docs/mvp-domaine.puml` n'existe pas) | Reference unique et chemin reellement existant |
