@@ -166,6 +166,7 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 | 2026-11-19 | Seuil de couverture fixe a 70 % des lignes / 60 % des branches, verifie par module | Le goal check ne peut analyser que les classes du module courant ; chaque module de production teste donc ses propres classes |
 | 2026-11-19 | Tache "module exemple" retiree du plan | Les 5 modules existants et le test ArchUnit valident deja la structure ; un module jetable aurait ajoute du code mort |
 | 2026-11-19 | Classe de lancement Bahi27Application exclue de la couverture | Elle ne contient aucune logique metier (uniquement SpringApplication.run) ; la tester imposerait de demarrer un vrai serveur |
+| 2026-11-19 | JUnit 5 accepte en scope test dans domain (decision du porteur du projet) | Permet de mesurer le seuil 70/60 sur chaque module tout en gardant domain sans aucune dependance de production |
 | 2026-11-19 | ArchUnit 1.5.1 (scope test, module app) pour verrouiller les frontieres de couches | Une violation de couche casse le build au lieu d'etre decouverte a la relecture |
 | 2026-11-19 | CI declenchee sur tout push et toute pull request (plus seulement main) | La CI couvre aussi les branches de travail comme phase-0 |
 | 2026-11-19 | `AGENT.md` renomme en `AGENTS.md` ; PLAN.md pointe vers `partie-1.puml` (le fichier `docs/mvp-domaine.puml` n'existe pas) | Reference unique et chemin reellement existant |

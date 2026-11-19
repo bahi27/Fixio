@@ -75,7 +75,7 @@ Projet Maven multi-modules, architecture hexagonale, packages
 
 | Module | Contenu |
 | --- | --- |
-| `domain` | règles métier, **aucune dépendance** (ni Spring, ni JPA) |
+| `domain` | règles métier, **aucune dépendance de production** (ni Spring, ni JPA) ; JUnit uniquement en scope `test` |
 | `application` | orchestration des cas d'usage |
 | `persistence` | base de données, migrations Flyway, adaptateurs |
 | `web` | API HTTP, gestion d'erreurs commune |
