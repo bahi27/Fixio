@@ -167,3 +167,4 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 | 2026-11-19 | ArchUnit 1.5.1 (scope test, module app) pour verrouiller les frontieres de couches | Une violation de couche casse le build au lieu d'etre decouverte a la relecture |
 | 2026-11-19 | CI declenchee sur tout push et toute pull request (plus seulement main) | La CI couvre aussi les branches de travail comme phase-0 |
 | 2026-11-19 | `AGENT.md` renomme en `AGENTS.md` ; PLAN.md pointe vers `partie-1.puml` (le fichier `docs/mvp-domaine.puml` n'existe pas) | Reference unique et chemin reellement existant |
+| 2026-11-19 | Healthcheck `pg_isready` sur PostgreSQL et `docker compose up -d --wait` dans les scripts | La base est vraiment prete avant le demarrage de l'application, sans boucle sleep fragile |
