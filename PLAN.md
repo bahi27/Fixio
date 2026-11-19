@@ -2,7 +2,7 @@
 
 Ce fichier dit **quoi construire et dans quel ordre**.
 Les règles de code sont dans `AGENTS.md`. Le modèle de données est dans
-`partie-1.puml`. En cas de doute, ces deux fichiers font foi.
+`docs/partie-1.puml`. En cas de doute, ces deux fichiers font foi.
 
 ## Objectif
 
@@ -172,7 +172,7 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 | 2026-11-19 | JUnit 5 accepte en scope test dans domain (decision du porteur du projet) | Permet de mesurer le seuil 70/60 sur chaque module tout en gardant domain sans aucune dependance de production |
 | 2026-11-19 | ArchUnit 1.5.1 (scope test, module app) pour verrouiller les frontieres de couches | Une violation de couche casse le build au lieu d'etre decouverte a la relecture |
 | 2026-11-19 | CI declenchee sur tout push et toute pull request (plus seulement main) | La CI couvre aussi les branches de travail comme phase-0 |
-| 2026-11-19 | `AGENT.md` renomme en `AGENTS.md` ; PLAN.md pointe vers `partie-1.puml` (le fichier `docs/mvp-domaine.puml` n'existe pas) | Reference unique et chemin reellement existant |
+| 2026-11-19 | `AGENT.md` renomme en `AGENTS.md` ; diagrammes deplaces dans `docs/` | Reference unique et chemins reellement existants (`docs/partie-1.puml`) |
 | 2026-11-19 | Healthcheck `pg_isready` sur PostgreSQL et `docker compose up -d --wait` dans les scripts | La base est vraiment prete avant le demarrage de l'application, sans boucle sleep fragile |
 | 2026-11-19 | `container_name` retire de docker-compose | Un nom fixe empechait deux clones (ou deux dossiers) de demarrer en meme temps ; Docker genere desormais un nom unique par projet |
 | 2026-11-19 | `run.sh` valide sur un clone propre (base arretee au prealable) | `git clone`, `./run.sh` puis `/actuator/health` = 200, Swagger UI = 200, OpenAPI titre `bahi27 API` version `0.0.1-SNAPSHOT` |

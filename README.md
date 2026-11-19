@@ -108,4 +108,5 @@ seuls `health` et `info` sont exposés sous `/actuator`.
 
 - `AGENTS.md` : règles de code et de collaboration (fait foi)
 - `PLAN.md` : feuille de route par phases et journal des décisions
-- `partie-1.puml` : modèle de données de référence
+- `docs/partie-1.puml` : modèle de données de référence
+- `docs/vision-complete.puml` : vue d'ensemble du projet (pas un support de code)
