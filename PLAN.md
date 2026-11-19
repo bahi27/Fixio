@@ -165,3 +165,4 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 | 2026-11-19 | Format de log verifie par test (ISO-8601) et actuator limite a health,info | Prouve le format sans dependance supplementaire et evite l'exposition de configuration sensible |
 | 2026-11-19 | JaCoCo 0.8.16 avec rapport agrege dans le module app | Mesure de couverture globale ; aucun seuil impose tant que le porteur du projet ne l'a pas choisi |
 | 2026-11-19 | ArchUnit 1.5.1 (scope test, module app) pour verrouiller les frontieres de couches | Une violation de couche casse le build au lieu d'etre decouverte a la relecture |
+| 2026-11-19 | CI declenchee sur tout push et toute pull request (plus seulement main) | La CI couvre aussi les branches de travail comme phase-0 |
