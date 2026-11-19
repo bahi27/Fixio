@@ -72,6 +72,8 @@ But : un projet vide qui démarre, se teste et se déploie.
       - `api` accède à `infrastructure`
       - un module accède au `domain` ou à l'`infrastructure` d'un autre module
       - un controller utilise directement un Repository
+- [ ] Seuil JaCoCo (rapport agrégé en place, seuil à décider par le porteur du projet ;
+      proposition : 80 % des lignes et 70 % des branches)
 **Validation attendue :** je clone le projet, je lance 3 commandes, ça marche.
 
 ## Phase 1 : module `user`
@@ -160,3 +162,4 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 | 2026-11-19 | Titre et version OpenAPI lus depuis application.yml (version issue du pom.xml) | Documentation exacte sans dupliquer le numero de version |
 | 2026-11-19 | Reponses 405 et 400 (JSON illisible) ajoutees au handler global | Sans elles, une methode HTTP erronee ou un JSON casse renvoyait 500 avec un message trompeur |
 | 2026-11-19 | Format de log verifie par test (ISO-8601) et actuator limite a health,info | Prouve le format sans dependance supplementaire et evite l'exposition de configuration sensible |
+| 2026-11-19 | JaCoCo 0.8.16 avec rapport agrege dans le module app | Mesure de couverture globale ; aucun seuil impose tant que le porteur du projet ne l'a pas choisi |
