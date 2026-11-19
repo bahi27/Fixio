@@ -110,6 +110,14 @@ années et pouvoir monter à plusieurs millions d'utilisateurs.
 - Chaque endpoint a au moins un test d'intégration.
 - Un bug corrigé = un test ajouté.
 
+# Git
+
+- Chaque tâche validée donne lieu à un commit unique en français, préfixé
+  d'un type conventionnel : `feat:`, `fix:`, `build:`, `chore:`, `test:`,
+  `docs:`.
+- Aucun commit ne doit laisser le build rouge.
+- Commits petits et ciblés.
+
 # Méthode de travail
 
 1. Avant de coder, explique en 3 à 5 lignes ce que tu vas faire.

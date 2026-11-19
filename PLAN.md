@@ -2,7 +2,7 @@
 
 Ce fichier dit **quoi construire et dans quel ordre**.
 Les règles de code sont dans `AGENTS.md`. Le modèle de données est dans
-`docs/mvp-domaine.puml`. En cas de doute, ces deux fichiers font foi.
+`docs/partie-1.puml`. En cas de doute, ces deux fichiers font foi.
 
 ## Objectif
 
@@ -49,8 +49,11 @@ Une tâche est terminée seulement si :
 
 But : un projet vide qui démarre, se teste et se déploie.
 
+**État : terminé le 2026-11-19** — 15 tâches, build vert (29 tests), `./run.sh`
+validé sur un clone propre.
+
 - [x] Projet parent Maven + modules vides : domain, application, persistence,
-      web, app. Les dépendances entre modules sont celles d'AGENT.md.
+      web, app. Les dépendances entre modules sont celles d'AGENTS.md.
       `mvn clean verify` passe. `domain` n'a aucune dépendance.
 - [x] Projet Spring Boot (Java 21, Maven), structure par modules métier
 - [x] `docker-compose.yml` avec PostgreSQL pour le développement
@@ -63,15 +66,17 @@ But : un projet vide qui démarre, se teste et se déploie.
 - [x] Gestion d'erreurs globale : format JSON unique, jamais d'erreur technique visible
 - [x] Logs structurés
 - [x] Intégration continue (GitHub Actions) qui lance `mvn verify`
-- [ ] `README.md` : comment lancer le projet en 3 commandes
-- [ ] Créer un module exemple minimal avec les 4 dossiers (domain, application,
-      api, infrastructure) pour valider la structure avant les vrais modules
-- [ ] Test d'architecture automatique (proposer la librairie ArchUnit, open source) qui
+- [x] `README.md` : comment lancer le projet en 3 commandes
+- [x] Test d'architecture automatique (ArchUnit `archunit-junit5` 1.5.1, Apache 2.0) qui
       fait échouer `mvn verify` si :
       - `domain` importe Spring, JPA ou Jackson
-      - `api` accède à `infrastructure`
-      - un module accède au `domain` ou à l'`infrastructure` d'un autre module
+      - `web` accède à `persistence`
+      - `application` accède à `persistence` ou `web`
+      - un domaine (`fr.bahi27.domain.<domaine>`) dépend d'un autre domaine
       - un controller utilise directement un Repository
+- [x] Seuil JaCoCo : 70 % des lignes et 60 % des branches, appliqué par module de
+      production dans `mvn verify` (le goal `check` n'analyse que les classes du
+      module courant) ; rapport agrégé conservé pour la vue d'ensemble
 **Validation attendue :** je clone le projet, je lance 3 commandes, ça marche.
 
 ## Phase 1 : module `user`
@@ -132,6 +137,9 @@ But : un projet vide qui démarre, se teste et se déploie.
 - [ ] Test de bout en bout : inscription -> demande -> offre -> acceptation -> mission terminée
 - [ ] Nettoyage : code mort, doublons, dépendances inutiles
 - [ ] Documentation à jour : README, OpenAPI, ce plan
+- [ ] Désactiver Swagger UI et l'exposition de l'API docs (`/v3/api-docs`) en production
+- [x] Rendre le port PostgreSQL configurable dans `.env` (déjà en place : `DATABASE_PORT`
+      lu par `docker-compose.yml` et `application.yml`, exemples dans `.env.example`)
 - [ ] Déploiement de test (Docker) sur un petit serveur
 
 **Validation attendue :** le parcours complet fonctionne et je peux le démontrer.
@@ -157,3 +165,17 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 | 2026-11-18 | GlobalExceptionHandler avec ErrorResponse unifiee | Format JSON unique d'erreur (RFC 7807 inspire), masquage des erreurs techniques |
 | 2026-11-18 | Format de log standardise ISO-8601 et niveaux par package | Logs structures clairs avec horodatage precis et niveau debug pour bahi27 |
 | 2026-11-18 | GitHub Actions CI avec Eclipse Temurin 21 | Verification automatique du build et des tests sur push et PR |
+| 2026-11-19 | Titre et version OpenAPI lus depuis application.yml (version issue du pom.xml) | Documentation exacte sans dupliquer le numero de version |
+| 2026-11-19 | Reponses 405 et 400 (JSON illisible) ajoutees au handler global | Sans elles, une methode HTTP erronee ou un JSON casse renvoyait 500 avec un message trompeur |
+| 2026-11-19 | Format de log verifie par test (ISO-8601) et actuator limite a health,info | Prouve le format sans dependance supplementaire et evite l'exposition de configuration sensible |
+| 2026-11-19 | JaCoCo 0.8.16 avec rapport agrege dans le module app | Mesure de couverture globale ; aucun seuil impose tant que le porteur du projet ne l'a pas choisi |
+| 2026-11-19 | Seuil de couverture fixe a 70 % des lignes / 60 % des branches, verifie par module | Le goal check ne peut analyser que les classes du module courant ; chaque module de production teste donc ses propres classes |
+| 2026-11-19 | Tache "module exemple" retiree du plan | Les 5 modules existants et le test ArchUnit valident deja la structure ; un module jetable aurait ajoute du code mort |
+| 2026-11-19 | Classe de lancement Bahi27Application exclue de la couverture | Elle ne contient aucune logique metier (uniquement SpringApplication.run) ; la tester imposerait de demarrer un vrai serveur |
+| 2026-11-19 | JUnit 5 accepte en scope test dans domain (decision du porteur du projet) | Permet de mesurer le seuil 70/60 sur chaque module tout en gardant domain sans aucune dependance de production |
+| 2026-11-19 | ArchUnit 1.5.1 (scope test, module app) pour verrouiller les frontieres de couches | Une violation de couche casse le build au lieu d'etre decouverte a la relecture |
+| 2026-11-19 | CI declenchee sur tout push et toute pull request (plus seulement main) | La CI couvre aussi les branches de travail comme phase-0 |
+| 2026-11-19 | `AGENT.md` renomme en `AGENTS.md` ; diagrammes deplaces dans `docs/` | Reference unique et chemins reellement existants (`docs/partie-1.puml`) |
+| 2026-11-19 | Healthcheck `pg_isready` sur PostgreSQL et `docker compose up -d --wait` dans les scripts | La base est vraiment prete avant le demarrage de l'application, sans boucle sleep fragile |
+| 2026-11-19 | `container_name` retire de docker-compose | Un nom fixe empechait deux clones (ou deux dossiers) de demarrer en meme temps ; Docker genere desormais un nom unique par projet |
+| 2026-11-19 | `run.sh` valide sur un clone propre (base arretee au prealable) | `git clone`, `./run.sh` puis `/actuator/health` = 200, Swagger UI = 200, OpenAPI titre `bahi27 API` version `0.0.1-SNAPSHOT` |

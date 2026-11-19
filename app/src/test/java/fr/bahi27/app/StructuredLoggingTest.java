@@ -2,9 +2,12 @@ package fr.bahi27.app;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.PatternLayout;
+import ch.qos.logback.classic.spi.LoggingEvent;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest(
@@ -19,11 +22,40 @@ import org.springframework.boot.test.context.SpringBootTest;
     })
 class StructuredLoggingTest {
 
-  private static final Logger log = LoggerFactory.getLogger(StructuredLoggingTest.class);
+  @Value("${logging.pattern.console}")
+  private String patternConsole;
 
   @Test
-  void loggerFonctionneAvecFormatStructure() {
-    log.info("Test de log structure avec horodatage et niveau");
-    assertThat(log.isInfoEnabled()).isTrue();
+  void formatDeLogContientHorodatageIsoNiveauLoggerEtMessage() {
+    String ligne = formater("fr.bahi27.app.StructuredLoggingTest");
+
+    assertThat(ligne)
+        .matches(
+            "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d{3}[+-]\\d{2}:\\d{2} \\[main\\] INFO"
+                + "\\s+fr\\.bahi27\\.app\\.StructuredLoggingTest - Message de controle\\s*$");
+  }
+
+  @Test
+  void formatDeLogNeContientNiMotDePasseNiUtilisateur() {
+    String ligne = formater("fr.bahi27.app.StructuredLoggingTest");
+
+    assertThat(ligne).doesNotContain("password").doesNotContain("username");
+  }
+
+  private String formater(String nomLogger) {
+    PatternLayout layout = new PatternLayout();
+    layout.setContext(new LoggerContext());
+    layout.setPattern(patternConsole);
+    layout.start();
+    return layout.doLayout(evenementInfo(nomLogger));
+  }
+
+  private LoggingEvent evenementInfo(String nomLogger) {
+    LoggingEvent evenement = new LoggingEvent();
+    evenement.setLoggerName(nomLogger);
+    evenement.setLevel(Level.INFO);
+    evenement.setThreadName("main");
+    evenement.setMessage("Message de controle");
+    return evenement;
   }
 }

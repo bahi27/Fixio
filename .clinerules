@@ -1,0 +1,7 @@
+Avant toute action, lis AGENTS.md et PLAN.md. Ils font foi.
+Réponds en français. Code en anglais, commentaires rares et en français.
+Ne jamais ouvrir ni afficher le fichier .env (utilise .env.example).
+Ne jamais ajouter une dépendance non validée : propose-la d'abord.
+Ne jamais désactiver un test, baisser un seuil ou contourner ArchUnit.
+Ne jamais renommer le projet ni modifier docs/partie-1.puml sans mon accord.
+Ne dis jamais "ça marche" sans avoir montré le résultat de mvn clean verify.

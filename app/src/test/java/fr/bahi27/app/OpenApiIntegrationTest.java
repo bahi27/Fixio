@@ -36,6 +36,8 @@ class OpenApiIntegrationTest {
 
     assertThat(response.statusCode()).isEqualTo(200);
     assertThat(response.body()).contains("\"openapi\":\"3.");
+    assertThat(response.body()).contains("\"title\":\"bahi27 API\"");
+    assertThat(response.body()).contains("\"version\":\"0.0.1-SNAPSHOT\"");
   }
 
   @Test

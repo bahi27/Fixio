@@ -9,6 +9,10 @@ spring:
     open-in-view: false
   flyway:
     enabled: true
+info:
+  app:
+    title: bahi27 API
+    version: @project.version@
 management:
   endpoints:
     web:
