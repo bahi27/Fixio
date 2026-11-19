@@ -66,11 +66,12 @@ But : un projet vide qui démarre, se teste et se déploie.
 - [ ] `README.md` : comment lancer le projet en 3 commandes
 - [ ] Créer un module exemple minimal avec les 4 dossiers (domain, application,
       api, infrastructure) pour valider la structure avant les vrais modules
-- [ ] Test d'architecture automatique (proposer la librairie ArchUnit, open source) qui
+- [x] Test d'architecture automatique (ArchUnit `archunit-junit5` 1.5.1, Apache 2.0) qui
       fait échouer `mvn verify` si :
       - `domain` importe Spring, JPA ou Jackson
-      - `api` accède à `infrastructure`
-      - un module accède au `domain` ou à l'`infrastructure` d'un autre module
+      - `web` accède à `persistence`
+      - `application` accède à `persistence` ou `web`
+      - un domaine (`fr.bahi27.domain.<domaine>`) dépend d'un autre domaine
       - un controller utilise directement un Repository
 - [ ] Seuil JaCoCo (rapport agrégé en place, seuil à décider par le porteur du projet ;
       proposition : 80 % des lignes et 70 % des branches)
@@ -163,3 +164,4 @@ Ajoute ici chaque décision technique importante (date, choix, raison).
 | 2026-11-19 | Reponses 405 et 400 (JSON illisible) ajoutees au handler global | Sans elles, une methode HTTP erronee ou un JSON casse renvoyait 500 avec un message trompeur |
 | 2026-11-19 | Format de log verifie par test (ISO-8601) et actuator limite a health,info | Prouve le format sans dependance supplementaire et evite l'exposition de configuration sensible |
 | 2026-11-19 | JaCoCo 0.8.16 avec rapport agrege dans le module app | Mesure de couverture globale ; aucun seuil impose tant que le porteur du projet ne l'a pas choisi |
+| 2026-11-19 | ArchUnit 1.5.1 (scope test, module app) pour verrouiller les frontieres de couches | Une violation de couche casse le build au lieu d'etre decouverte a la relecture |
