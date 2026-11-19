@@ -16,9 +16,5 @@ import org.springframework.boot.test.context.SpringBootTest;
 class Bahi27ApplicationTest {
 
   @Test
-  void contextLoads() {
-    // Verifie que le contexte Spring Boot demarre correctement.
-    // Le test d'integration avec base de donnees reelle (Testcontainers)
-    // sera ajoute dans une tache dediee de la Phase 0.
-  }
+  void contextLoads() {}
 }
