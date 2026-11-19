@@ -137,6 +137,9 @@ validé sur un clone propre.
 - [ ] Test de bout en bout : inscription -> demande -> offre -> acceptation -> mission terminée
 - [ ] Nettoyage : code mort, doublons, dépendances inutiles
 - [ ] Documentation à jour : README, OpenAPI, ce plan
+- [ ] Désactiver Swagger UI et l'exposition de l'API docs (`/v3/api-docs`) en production
+- [x] Rendre le port PostgreSQL configurable dans `.env` (déjà en place : `DATABASE_PORT`
+      lu par `docker-compose.yml` et `application.yml`, exemples dans `.env.example`)
 - [ ] Déploiement de test (Docker) sur un petit serveur
 
 **Validation attendue :** le parcours complet fonctionne et je peux le démontrer.
